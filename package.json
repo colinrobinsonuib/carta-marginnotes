@@ -13,7 +13,6 @@
 		"prepublishOnly": "npm run package",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"prepare": "husky install",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write ."
 	},
@@ -46,7 +45,6 @@
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-svelte": "^3.5.1",
 		"hast-util-to-html": "^9.0.5",
-		"husky": "^9.1.7",
 		"lint-staged": "^15.5.1",
 		"mdast-util-to-hast": "^13.2.0",
 		"prettier": "^3.5.3",
@@ -74,13 +72,11 @@
 		"markdown",
 		"editor",
 		"remark",
-		"unified",
-		"text editor",
-		"syntax highlighting",
-		"subscript",
-		"superscript"
+		"margin",
+		"margin notes",
+		"footnotes"
 	],
-	"description": "This plugin adds ability to render sidenotes",
+	"description": "This plugin adds ability to render margin notes",
 	"dependencies": {
 		"hastscript": "^9.0.1",
 		"remark-supersub": "^1.0.0",
