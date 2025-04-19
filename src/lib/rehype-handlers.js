@@ -2,59 +2,70 @@
 
 import { h } from 'hastscript'; // Helper for creating HAST (HTML AST) nodes
 
-export const asideFootnoteHandlers = {
-  // Handler for the reference: [%note] -> <sup><a href="#aside-fn-def-1" id="aside-fn-ref-1">[1]</a></sup>
+export const inlineAsideFootnoteHandlers = {
+  // Handler for the reference: [%note] -> <sup><a href="#aside-fn-def-1" id="aside-fn-ref-1-1">[1]</a></sup>
+  // (No changes needed for the reference handler)
   asideFootnoteReference: (state, node) => {
-    const number = node.number ?? 'ERR'; // Use number assigned by remark plugin
-    const identifier = node.identifier; // Keep identifier if needed, maybe for data attributes
-    const defId = `aside-fn-def-${number}`; // ID of the definition it points to
-    const refId = `aside-fn-ref-${number}`; // ID of this reference itself
+    const number = node.number ?? 'ERR';
+    const identifier = node.identifier;
+    const referenceInstance = node.referenceInstance ?? 1;
 
-    return h('sup', [ // Wrap in superscript
-        h('a', {
-            href: `#${defId}`,
-            id: refId,
-            className: ['aside-footnote-ref'], // Optional class for styling
-            role: 'doc-noteref',
-            'aria-describedby': defId, // Link description for accessibility
-            'data-footnote-identifier': identifier, // Optional data attribute
-        }, `[${number}]`) // Displayed text like [1]
+    const defId = `aside-fn-def-${number}`; // Use span ID now
+    const refId = `aside-fn-ref-${number}-${referenceInstance}`;
+
+    // Optional: Add a class to the sup wrapper if needed for styling interactions
+    return h('sup', { className: 'aside-footnote-ref-wrapper' }, [
+      h('a', {
+        href: `#${defId}`, // Points to the definition span ID
+        id: refId,
+        className: ['aside-footnote-ref'],
+        role: 'doc-noteref',
+        'aria-describedby': 'aside-footnote-label-' + number, // Points to label within the definition span
+        'data-footnote-identifier': identifier,
+        'data-footnote-instance': referenceInstance,
+      }, `[${number}]`)
     ]);
   },
 
-  // Handler for the definition: [%note]: ... -> <aside id="aside-fn-def-1">...</aside>
+  // Handler for the definition: (inserted inline) -> <span id="aside-fn-def-1" class="aside-footnote-def">...</span>
   asideFootnoteDefinition: (state, node) => {
     const number = node.number ?? 'ERR';
     const identifier = node.identifier;
-    const defId = `aside-fn-def-${number}`; // ID for this definition
-    const refId = `aside-fn-ref-${number}`; // ID of the corresponding reference
-
-    // Create the back-reference link (optional but good practice)
-    const backReference = h('a', {
-        href: `#${refId}`,
-        className: ['aside-footnote-backref'], // Optional class
-        role: 'doc-backlink',
-        'aria-label': `Back to reference ${number}`,
-    }, '↩'); // Use an arrow or similar symbol
+    const defId = `aside-fn-def-${number}`; // ID for this definition span
+    const firstRefId = `aside-fn-ref-${number}-1`; // ID of the first reference
 
     // Process the content of the footnote definition
-    const content = state.all(node); // Convert child mdast nodes to hast
+    const content = state.all(node);
 
-    // Optional: Add the number and backlink *inside* the aside
-    // Adjust structure as needed (e.g., wrap content in a div)
-    const children = [
-        h('span', { className: 'aside-footnote-number'}, `${number}. `), // Display number
-        ...content, // The main content
-        ' ', // Space before backlink
+    // Create the visually hidden label for aria-describedby
+    // Note: Putting block-like content inside this label might be problematic depending on CSS. Keep it simple.
+    const label = h('span', { id: `aside-footnote-label-${number}`, className: 'visually-hidden' }, `Footnote ${number}`);
+
+    // Back-reference link
+    const backReference = h('a', {
+        href: `#${firstRefId}`,
+        className: ['aside-footnote-backref'],
+        role: 'doc-backlink',
+        'aria-label': `Back to first reference for footnote ${number}`,
+    }, '↩');
+
+    // Assemble children for the span
+    // We include the hidden label first for accessibility hookup.
+    const childrenToRender = [
+        label, // Important for aria-describedby on the link
+        h('span', {className: 'aside-footnote-number'}, `${number}. `),
+        ...content, // The main definition content
+        ' ',
         backReference
     ];
 
-
-    return h('aside', {
-        id: defId,
-        className: ['aside-footnote-def'], // Optional class
-        role: 'doc-endnote', // Appropriate ARIA role
-        'data-footnote-identifier': identifier, // Optional data attribute
-    }, children); // Place content and backlink inside the aside
+    // *** Use span instead of aside ***
+    return h('span', { // <--- Changed from 'aside' to 'span'
+      id: defId,
+      className: ['aside-footnote-def', 'inline-aside-footnote'], // Keep classes for styling
+      // Use role="note" to add semantics back for assistive tech
+      role: 'note',
+      'data-footnote-identifier': identifier,
+    }, childrenToRender);
   },
 };

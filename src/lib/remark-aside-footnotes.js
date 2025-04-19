@@ -1,6 +1,5 @@
 import { visit } from 'unist-util-visit';
 import { remove } from 'unist-util-remove';
-import { findAfter } from 'unist-util-find-after';
 import { toString } from 'mdast-util-to-string';
 
 const C_PERCENT = 37; // '%'
@@ -8,15 +7,17 @@ const C_BRACKET_OPEN = 91; // '['
 const C_BRACKET_CLOSE = 93; // ']'
 const C_COLON = 58; // ':'
 
-// Simple identifier check (adjust regex as needed for complexity)
 const identifierRegex = /^[a-zA-Z0-9_-]+$/;
 const referenceRegex = /\[%(.*?)\]/g; // Non-greedy match inside [%...]
 
-function remarkAsideFootnotes() {
+function remarkInlineAsideFootnotes() {
   return (tree, file) => {
-    const definitions = {}; // Store definition nodes { identifier: { node, identifier, children } }
-    const referenceOrder = []; // Keep track of the order identifiers are first referenced
-    const references = []; // Store reference nodes { node, identifier, parent, startIndex, endIndex }
+    const definitions = {}; // Store definition content { identifier: { children: [...] } }
+    const definitionNodesToRemove = []; // Store original definition nodes to remove later
+    const identifierToNumber = {}; // Map identifier to its assigned sequential number
+    const identifierFirstReferenceNode = {}; // Map identifier to the node where the definition should be inserted after
+    const referenceCounts = {}; // Map identifier to how many times it has been referenced
+    let footnoteCounter = 0; // Counter for assigning numbers
 
     // --- Pass 1: Find Definitions ---
     visit(tree, 'paragraph', (node, index, parent) => {
@@ -32,7 +33,6 @@ function remarkAsideFootnotes() {
       const firstChild = node.children[0];
       const text = firstChild.value;
 
-      // Check for [%identifier]: structure
       if (
         text.charCodeAt(0) === C_BRACKET_OPEN &&
         text.charCodeAt(1) === C_PERCENT
@@ -44,133 +44,141 @@ function remarkAsideFootnotes() {
           if (identifierRegex.test(identifier) && !definitions[identifier]) {
             // Valid definition found
             const definitionContentPrefix = text.slice(closeBracketIndex + 2).trimStart();
-            const definitionChildren = node.children.slice(1); // Rest of the children in the paragraph
+            let definitionChildren = node.children.slice(1);
 
-            // Update or replace the first child's text node
+            // Update or replace the first child's text node for content
             if (definitionContentPrefix) {
               firstChild.value = definitionContentPrefix;
+              definitionChildren = [firstChild, ...definitionChildren]; // Prepend the modified first child
             } else {
-              // If the definition starts on the next node, remove the now empty first child
-              node.children.shift();
+               // Definition content starts on the next node, do nothing here yet
+               // The original children array already excludes the first child
             }
+
+             // Remove empty first text node if prefix was empty and it was the only content node
+             if (!definitionContentPrefix && node.children.length > 0) {
+                 definitionChildren = node.children.slice(1);
+             } else if(definitionContentPrefix) {
+                  node.children[0].value = definitionContentPrefix;
+                  definitionChildren = node.children;
+             } else {
+                 definitionChildren = []; // Should not happen if paragraph has content
+             }
+
 
             definitions[identifier] = {
               identifier: identifier,
-              children: node.children, // The content nodes
-              // Store original node temporarily if needed, but we'll build a new one later
+              children: definitionChildren, // Store the content nodes
             };
 
-            // Mark the node for removal after collection
-            node._asideFootnoteDefinitionMarker = true; // Custom flag
-            return visit.SKIP; // Don't visit children of this definition paragraph
+            // Mark the original definition node for removal later
+            definitionNodesToRemove.push(node);
+            return visit.SKIP; // Don't visit children
           }
         }
       }
     });
 
-     // Remove original definition paragraphs after collecting content
-     remove(tree, node => node._asideFootnoteDefinitionMarker === true);
-
-
-    // --- Pass 2: Find References ---
+    // --- Pass 2: Find References and Insert Nodes ---
     visit(tree, 'text', (node, index, parent) => {
-        if (!parent || index === null) return;
+      if (!parent || index === null || node.type !== 'text') return;
 
-        referenceRegex.lastIndex = 0; // Reset regex state
-        let match;
-        let lastIndex = 0;
-        const newChildren = [];
+      referenceRegex.lastIndex = 0; // Reset regex state
+      let match;
+      let lastIndex = 0;
+      const newChildren = [];
+      let nodesAdded = 0; // Track how many nodes we add to adjust visitor index
 
-        while ((match = referenceRegex.exec(node.value)) !== null) {
-            const identifier = match[1];
+      while ((match = referenceRegex.exec(node.value)) !== null) {
+        const identifier = match[1];
+        const definitionData = definitions[identifier];
 
-            if (definitions[identifier]) { // Only create references for defined footnotes
-                // Add text before the match
-                if (match.index > lastIndex) {
-                    newChildren.push({
-                        type: 'text',
-                        value: node.value.slice(lastIndex, match.index),
-                    });
-                }
+        // Only process if a valid definition exists
+        if (definitionData) {
+          // Add text before the match
+          if (match.index > lastIndex) {
+            newChildren.push({ type: 'text', value: node.value.slice(lastIndex, match.index) });
+          }
 
-                // Create the custom reference node
-                const referenceNode = {
-                    type: 'asideFootnoteReference', // Custom node type
-                    identifier: identifier,
-                    // We'll add label/number later
-                };
-                newChildren.push(referenceNode);
-                references.push({ node: referenceNode, identifier: identifier });
+          // --- Assign Number and Handle First/Subsequent Reference ---
+          let number;
+          let isFirstReference = false;
+          if (identifierToNumber[identifier] === undefined) {
+            // First time encountering this identifier
+            isFirstReference = true;
+            footnoteCounter++;
+            number = footnoteCounter;
+            identifierToNumber[identifier] = number;
+            referenceCounts[identifier] = 1;
+          } else {
+            // Subsequent reference
+            number = identifierToNumber[identifier];
+            referenceCounts[identifier]++;
+          }
 
-                 // Track first appearance order
-                 if (!referenceOrder.includes(identifier)) {
-                    referenceOrder.push(identifier);
-                }
+          const referenceInstance = referenceCounts[identifier]; // e.g., 1st, 2nd ref
 
-                lastIndex = match.index + match[0].length;
-            }
-            // If not a valid definition, the regex continues searching
+          // --- Create Reference Node ---
+          const referenceNode = {
+            type: 'asideFootnoteReference', // Custom node type
+            identifier: identifier,
+            number: number,
+            referenceInstance: referenceInstance, // Store which occurrence this is
+          };
+          newChildren.push(referenceNode);
+          nodesAdded++;
+
+          // --- Create and Add Definition Node (ONLY on first reference) ---
+          if (isFirstReference) {
+            const definitionNode = {
+              type: 'asideFootnoteDefinition', // Custom node type
+              identifier: identifier,
+              number: number,
+              children: definitionData.children, // Use the stored content
+            };
+            newChildren.push(definitionNode);
+            nodesAdded++;
+            // Store a reference to the parent/index where the first definition was inserted
+            // (though maybe not strictly needed now we insert directly)
+            identifierFirstReferenceNode[identifier] = { parent, index };
+          }
+
+          lastIndex = match.index + match[0].length;
+        }
+         // Keep searching if identifier not found or regex needs to continue
+         referenceRegex.lastIndex = match.index + 1; // Avoid infinite loop on empty match? Should not happen here. Reset if needed.
+          if (lastIndex === match.index) { // Safety break for potential zero-length matches (unlikely here)
+              referenceRegex.lastIndex++;
+          }
+
+      } // End while loop
+
+      // --- Replace Original Text Node if Matches Found ---
+      if (newChildren.length > 0) {
+        // Add any remaining text after the last match
+        if (lastIndex < node.value.length) {
+          newChildren.push({ type: 'text', value: node.value.slice(lastIndex) });
         }
 
-        // If references were found, replace the original text node
-        if (newChildren.length > 0) {
-             // Add any remaining text after the last match
-             if (lastIndex < node.value.length) {
-                newChildren.push({ type: 'text', value: node.value.slice(lastIndex) });
-             }
-             // Replace the current text node with the new nodes (text and references)
-             parent.children.splice(index, 1, ...newChildren);
-             return index + newChildren.length; // Adjust index for visit
-        }
+        // Replace the current text node with the new nodes
+        parent.children.splice(index, 1, ...newChildren);
 
-        return visit.CONTINUE;
+        // Adjust visit index because we replaced 1 node with potentially multiple nodes
+        return index + nodesAdded;
+      }
+
+      // No matches in this text node, continue normally
+      return visit.CONTINUE;
     });
 
 
-    // --- Pass 3: Assign Numbers and Create Final Nodes ---
-    if (referenceOrder.length > 0) {
-        const definitionNodes = [];
-        const identifierToNumber = {};
-
-        // Assign numbers based on reference order
-        referenceOrder.forEach((identifier, index) => {
-            const number = index + 1;
-            identifierToNumber[identifier] = number;
-
-            // Create the final definition node
-            const definitionData = definitions[identifier];
-            if (definitionData) {
-                const definitionNode = {
-                    type: 'asideFootnoteDefinition', // Custom node type
-                    identifier: identifier,
-                    number: number, // Assign the number
-                    children: definitionData.children, // Content goes here
-                };
-                definitionNodes.push(definitionNode);
-            }
-        });
-
-        // Update reference nodes with numbers
-        references.forEach(ref => {
-            const number = identifierToNumber[ref.identifier];
-            if (number !== undefined) {
-                ref.node.number = number; // Add number to reference node
-            } else {
-                // This case shouldn't happen if logic is correct, but handle defensively
-                // Maybe revert ref.node back to text? For now, it will just lack a number.
-                 console.warn(`Aside footnote reference '[%${ref.identifier}]' found but corresponding definition missing or not referenced.`);
-            }
-        });
-
-        // Append all definition nodes to the end of the document body
-        tree.children.push(...definitionNodes);
+    // --- Pass 3: Remove Original Definition Paragraphs ---
+    // Do this last to ensure definition content was correctly captured
+     if (definitionNodesToRemove.length > 0) {
+        remove(tree, (node) => definitionNodesToRemove.includes(node));
     }
 
-    // Clean up temporary flag if any definition wasn't removed (shouldn't happen)
-     visit(tree, (node) => {
-        delete node._asideFootnoteDefinitionMarker;
-    });
   };
 }
 
-export default remarkAsideFootnotes;
+export default remarkInlineAsideFootnotes;

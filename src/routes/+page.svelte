@@ -25,6 +25,22 @@ other serif fonts like Palatino and Georgia.
 [%2]: See Tufte's comment in the [Tufte book fonts](bembo-thread) thread.
 
 In the 19^th^ century, the concentration of CO~2~ was 280 ppm.`;
+
+value =  `
+Here is the first reference [%my-note]. It should be followed by the aside.
+
+And here is a real footnote[^fn]. No aside here.
+
+[^fn]: This is a footnote. It appears at the bottom of the page.
+
+This is a reference to a different note [%another-note]. Its aside follows.
+
+[%my-note]: This is the content for the first note. It appears inline after the first ref.
+
+Some more text.
+
+[%another-note]: This is the second note's definition. It can span multiple lines.
+`;
 </script>
 
 

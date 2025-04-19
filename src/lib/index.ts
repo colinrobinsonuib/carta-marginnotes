@@ -6,9 +6,9 @@ import SupscriptIcon from './icons/SupscriptIcon.svelte';
 import sidenotes from './remark-sidenotes-transformer';
 import gloss from './remark-gloss';
 
-import remarkAsideFootnotes from './remark-aside-footnotes.js';
+import remarkInlineAsideFootnotes  from './remark-aside-footnotes.js';
 import remarkRehype from 'remark-rehype';
-import { asideFootnoteHandlers } from './rehype-handlers.js';
+import { inlineAsideFootnoteHandlers  } from './rehype-handlers.js';
 
 export const subscript = (): CartaPlugin => {
 	return {
@@ -17,10 +17,10 @@ export const subscript = (): CartaPlugin => {
 				execution: 'sync',
 				type: 'remark',
 				transform: ({ processor }) => {
-					processor.use(remarkAsideFootnotes)
+					processor.use(remarkInlineAsideFootnotes )
 					.use(remarkRehype, {
 						allowDangerousHtml: true,
-						handlers: asideFootnoteHandlers
+						handlers: inlineAsideFootnoteHandlers
 					})
 				},
 			},
