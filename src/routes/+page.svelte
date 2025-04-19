@@ -2,49 +2,37 @@
 	import { Carta, MarkdownEditor } from 'carta-md';
 	import 'carta-md/default.css';
 
-	import { subscript } from '$lib';
+	import { marginnotes } from '$lib';
 
 	const carta = new Carta({
-		extensions: [subscript()],
+		extensions: [marginnotes()],
 		gfmOptions: {
 			singleTilde: false,
 		},
 		sanitizer: false,
 	});
 
-	let value = `
-H~2~O, CO~2~ and CH~4~ are greenhouse gases[^1].
+	const value = `
+Here is the first reference [+my-note]. It should be followed by the aside.
 
-[^1]: Greenhouse gases are gases that trap heat in the atmosphere.
+[+my-note]: This is the content for the first note. It appears inline after the first ref.
 
-In print, Tufte has used the proprietary Monotype Bembo[%2] font. A similar
-effect is achieved in digital formats with the now open-source [ETBook](url), which Tufte CSS supplies with a reference to a
-.ttf file. In case ETBook somehow doesn't work, Tufte CSS shifts gracefully to
-other serif fonts like Palatino and Georgia.
+H~2~O, CO~2~ and CH~4~ are greenhouse gases
 
-[%2]: See Tufte's comment in the [Tufte book fonts](bembo-thread) thread.
+And here[^fn1] is a real footnote[^fn2]. No aside here.
 
-In the 19^th^ century, the concentration of CO~2~ was 280 ppm.`;
+[^fn1]: This is the first footnote. It appears at the bottom of the page.
 
-value =  `
+[^fn2]: This is the second footnote. It appears at the bottom of the page.
 
-Here is the first reference [%my-note]. It should be followed by the aside.
-
-And here is a real footnote[^fn]. No aside here.
-
-[^fn]: This is a footnote. It appears at the bottom of the page.
-
-This is a reference to a different note [%another-note]. Its aside follows.
-
-[%my-note]: This is the content for the first note. It appears inline after the first ref.
+This is a reference to a different note [+another-note]. Its aside follows.
 
 Some more text.
 
-[%another-note]: This is the second note's definition. It can span multiple lines.  
+[+another-note]: This is the second note's definition. It can span multiple lines.  
 It appears inline after the second ref.
 `;
 </script>
-
 
 <main>
 	<MarkdownEditor {carta} {value} />
