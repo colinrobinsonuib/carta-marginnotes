@@ -1,6 +1,8 @@
-import { visit } from 'unist-util-visit';
+import { visit, SKIP, CONTINUE } from 'unist-util-visit';
 import { remove } from 'unist-util-remove';
 import { toString } from 'mdast-util-to-string';
+import type { Node } from 'unist';
+import type { Root } from 'mdast'
 
 const C_PERCENT = 37; // '%'
 const C_BRACKET_OPEN = 91; // '['
@@ -8,15 +10,15 @@ const C_BRACKET_CLOSE = 93; // ']'
 const C_COLON = 58; // ':'
 
 const identifierRegex = /^[a-zA-Z0-9_-]+$/;
-const referenceRegex = /\[%(.*?)\]/g; // Non-greedy match inside [%...]
+const referenceRegex = /\[%(.*?)\]/g;
 
 function remarkInlineAsideFootnotes() {
-  return (tree, file) => {
-    const definitions = {}; // Store definition content { identifier: { children: [...] } }
-    const definitionNodesToRemove = []; // Store original definition nodes to remove later
-    const identifierToNumber = {}; // Map identifier to its assigned sequential number
-    const identifierFirstReferenceNode = {}; // Map identifier to the node where the definition should be inserted after
-    const referenceCounts = {}; // Map identifier to how many times it has been referenced
+  return (tree: Root) => {
+    const definitions: Record<string, { identifier: string; children: Node[] }> = {}; // Store definition content
+    const definitionNodesToRemove: Node[] = []; // Store original definition nodes to remove later
+    const identifierToNumber: Record<string, number> = {}; // Map identifier to its assigned sequential number
+    const identifierFirstReferenceNode: Record<string, { parent: Node; index: number }> = {}; // Map identifier to the node where the definition should be inserted after
+    const referenceCounts: Record<string, number> = {}; // Map identifier to how many times it has been referenced
     let footnoteCounter = 0; // Counter for assigning numbers
 
     // --- Pass 1: Find Definitions ---
@@ -73,16 +75,16 @@ function remarkInlineAsideFootnotes() {
 
             // Mark the original definition node for removal later
             definitionNodesToRemove.push(node);
-            return visit.SKIP; // Don't visit children
+            return SKIP; // Don't visit children
           }
         }
       }
     });
 
     // --- Pass 2: Find References and Insert Nodes ---
-    visit(tree, 'text', (node, index, parent) => {
-      if (!parent || index === null || node.type !== 'text') return;
-
+    visit(tree, 'text', (node:Node, index:number|undefined, parent:Node|undefined) => {
+      if (!parent || index === null || index === undefined || node.type !== 'text') return;
+      console.log(node);
       referenceRegex.lastIndex = 0; // Reset regex state
       let match;
       let lastIndex = 0;
@@ -168,7 +170,7 @@ function remarkInlineAsideFootnotes() {
       }
 
       // No matches in this text node, continue normally
-      return visit.CONTINUE;
+      return CONTINUE;
     });
 
 

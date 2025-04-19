@@ -27,6 +27,7 @@ other serif fonts like Palatino and Georgia.
 In the 19^th^ century, the concentration of CO~2~ was 280 ppm.`;
 
 value =  `
+
 Here is the first reference [%my-note]. It should be followed by the aside.
 
 And here is a real footnote[^fn]. No aside here.
@@ -39,7 +40,8 @@ This is a reference to a different note [%another-note]. Its aside follows.
 
 Some more text.
 
-[%another-note]: This is the second note's definition. It can span multiple lines.
+[%another-note]: This is the second note's definition. It can span multiple lines.  
+It appears inline after the second ref.
 `;
 </script>
 
