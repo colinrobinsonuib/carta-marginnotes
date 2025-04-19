@@ -12,4 +12,4 @@ Some more text
 
 2) rehype handler which renders them as sidenotes using https://edwardtufte.github.io/tufte-css/ and https://gwern.net/sidenote as inspiration.
 
-3) Carta plugin based on ![carta-plugin-subscript](https://img.shields.io/npm/v/carta-plugin-subscript) that incorporates it into the editor
+3) Carta plugin based on https://github.com/maisonsmd/carta-plugin-subscript that incorporates it into the editor
