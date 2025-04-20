@@ -12,3 +12,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 tsconfig.tsbuildinfo
 .eslintcache
+package-lock.json
+.idea/
+.vscode/
+.history/
