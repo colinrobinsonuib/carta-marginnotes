@@ -33,7 +33,7 @@ Some more text.
 It appears inline after the second ref.
 `;*/
 
-	/*const value = `
+	const value = `
 Lorem ipsum dolor sit amet, consectetur[+a] adipiscing elit. Vestibulum maximus, metus non laoreet egestas, augue ex interdum leo, vel vulputate ipsum[+b] lorem placerat enim. Suspendisse iaculis dapibus lorem. Cras tempor quis orci eu iaculis. Aliquam lobortis purus risus, in vulputate risus laoreet non. Suspendisse fringilla tristique condimentum. Fusce felis erat, commodo sit amet lectus ut, faucibus laoreet turpis. Nam leo eros, consectetur quis vulputate in, dictum ac ligula. Sed urna odio, viverra vitae nibh id, rhoncus fermentum ex.
 
 Cras porta enim vitae neque[+c] suscipit tincidunt. Integer rhoncus malesuada risus a elementum. Nunc in arcu tincidunt[+d], suscipit lorem sit amet, consequat augue. Etiam semper[+e] suscipit diam vitae laoreet. Nam tincidunt, nulla nec pulvinar pretium, ante diam elementum sapien, volutpat molestie ligula odio sit amet nisl. Mauris in lectus id ante viverra feugiat. Donec vitae magna quis ligula ornare aliquam vel et justo. Duis convallis vestibulum nisi et rhoncus. Quisque nec purus quis metus facilisis fringilla.
@@ -63,14 +63,8 @@ Praesent sollicitudin, dui eu faucibus faucibus, velit ex elementum purus, vel v
 [+e]: This is the content for the fifth note. It appears inline after the fifth ref.
 
 [+f]: This is the content for the sixth note. It appears inline after the sixth ref.
-`;*/
-
-	const value = `
-This is some text with a footnote reference.[+1]
-
-[+1]:
-    Here's a list inside the footnote:
 `;
+
 </script>
 
 <main>
