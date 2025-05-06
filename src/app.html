@@ -8,34 +8,30 @@
   <!-- <link rel="stylesheet" href="https://edwardtufte.github.io/tufte-css/tufte.css"/> -->
   %sveltekit.head%
   <style>
-    p {
-      width: 55%;
+    .carta-renderer p {
+      width: 75%;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    .marginnote-def {
+    .carta-renderer .marginnote-def {
       float: right;
       clear: right;
-      margin-right: -60%;
-      width: 50%;
+      margin-right: -30%;
+      width: 25%;
       margin-top: 0.3rem;
       margin-bottom: 0;
       line-height: 1.3;
       vertical-align: baseline;
       position: relative;
-
       padding: 0.2em 0.5em;
       border: 1px solid #ccc;
       background-color: #f9f9f9;
       font-size: 0.9em;
     }
 
-    .marginnote-ref-wrapper {}
+    .carta-renderer .marginnote-ref-wrapper {
+    }
 
-    .marginnote-backref {
+    .carta-renderer .marginnote-backref {
       margin-left: 0.5em;
       text-decoration: none;
     }

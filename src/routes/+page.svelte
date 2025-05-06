@@ -5,7 +5,9 @@
 	import { marginnotes } from '$lib';
 
 	const carta = new Carta({
-		extensions: [marginnotes()],
+		extensions: [marginnotes({
+			useNumbers: false
+		})],
 		gfmOptions: {
 			singleTilde: false,
 		},
@@ -34,15 +36,15 @@ It appears inline after the second ref.
 `;*/
 
 	const value = `
-Lorem ipsum dolor sit amet, consectetur[+a] adipiscing elit. Vestibulum maximus, metus non laoreet egestas, augue ex interdum leo, vel vulputate ipsum[+b] lorem placerat enim. Suspendisse iaculis dapibus lorem. Cras tempor quis orci eu iaculis. Aliquam lobortis purus risus, in vulputate risus laoreet non. Suspendisse fringilla tristique condimentum. Fusce felis erat, commodo sit amet lectus ut, faucibus laoreet turpis. Nam leo eros, consectetur quis vulputate in, dictum ac ligula. Sed urna odio, viverra vitae nibh id, rhoncus fermentum ex.
+Lorem ipsum dolor sit amet, consectetur[+a] adipiscing elit. Vestibulum maximus, metus non laoreet egestas, augue ex interdum leo, vel vulputate ipsum[+b] lorem placerat enim. Suspendisse iaculis dapibus lorem. Cras tempor quis orci eu iaculis. Aliquam lobortis purus risus, in vulputate risus laoreet non. Suspendisse fringilla tristique condimentum. Fusce felis erat, commodo sit amet lectus ut, faucibus laoreet turpis. Nam leo eros, consectetur quis vulputate in, dictum ac ligula. Sed urna odio, viverra vitae nibh id, rhoncus fermentum ex.[+a]
 
-Cras porta enim vitae neque[+c] suscipit tincidunt. Integer rhoncus malesuada risus a elementum. Nunc in arcu tincidunt[+d], suscipit lorem sit amet, consequat augue. Etiam semper[+e] suscipit diam vitae laoreet. Nam tincidunt, nulla nec pulvinar pretium, ante diam elementum sapien, volutpat molestie ligula odio sit amet nisl. Mauris in lectus id ante viverra feugiat. Donec vitae magna quis ligula ornare aliquam vel et justo. Duis convallis vestibulum nisi et rhoncus. Quisque nec purus quis metus facilisis fringilla.
+Cras porta enim vitae neque[+note] suscipit tincidunt. Integer rhoncus malesuada risus a elementum. Nunc in arcu tincidunt[+d], suscipit lorem sit amet, consequat augue. Etiam semper suscipit diam vitae laoreet. Nam tincidunt, nulla nec pulvinar pretium, ante diam elementum sapien, volutpat molestie ligula odio sit amet nisl. Mauris in lectus id ante viverra feugiat. Donec vitae magna quis ligula ornare aliquam vel et justo. Duis convallis vestibulum nisi et rhoncus. Quisque nec purus quis metus facilisis fringilla.
 
-Nullam dictum viverra vehicula[+a]. Curabitur dolor turpis, mollis ut arcu sit amet, feugiat dapibus ligula[+f]. Curabitur erat elit, blandit nec mattis vitae, malesuada eget orci. Morbi pellentesque diam at risus eleifend, eget varius justo vehicula. Vestibulum mattis, odio et faucibus volutpat, ipsum ligula vulputate mauris, ut convallis urna augue ut magna. Curabitur et lorem tortor. Nullam efficitur dui nulla, nec interdum magna accumsan sit amet. Morbi vel mattis lacus, in lacinia dolor. In dictum fringilla nibh eu fermentum. Cras fermentum eget mi ac porttitor. Aenean sed velit consequat sapien aliquam hendrerit. Quisque ut erat varius, malesuada lacus ac, feugiat urna. Aliquam mauris eros, pulvinar vitae vestibulum ut, tempor sit amet turpis.
-
-Integer finibus ullamcorper tempor. Nam scelerisque orci quis sem accumsan, vel ullamcorper ipsum malesuada. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras eu massa quis massa pulvinar pharetra. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur tristique turpis quis enim suscipit, sit amet scelerisque ante feugiat. Sed mollis mauris at nisl sollicitudin consectetur in eget urna. In dapibus purus in elementum imperdiet. Etiam malesuada purus dolor, in sagittis massa egestas eu. Aliquam nec dignissim nunc, sit amet condimentum mauris.
+Integer finibus ullamcorper tempor. Nam scelerisque orci quis sem accumsan[+e], vel ullamcorper ipsum malesuada. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras eu massa quis massa pulvinar pharetra. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur tristique turpis quis enim suscipit, sit amet scelerisque ante feugiat. Sed mollis mauris at nisl sollicitudin consectetur in eget urna. In dapibus purus in elementum imperdiet. Etiam malesuada purus dolor, in sagittis massa egestas eu. Aliquam nec dignissim nunc, sit amet condimentum mauris.
 
 Cras suscipit enim a tempor blandit. Aenean viverra neque ac quam eleifend, in egestas metus tempor. Maecenas et lacus at quam cursus fringilla. Etiam ligula erat, facilisis aliquam blandit nec, blandit eget urna. Nunc sit amet dignissim eros. Sed gravida massa ac ex volutpat, lobortis fermentum dui elementum. Ut feugiat metus libero, porttitor volutpat elit volutpat ac. Nam venenatis ante id elit finibus varius. Mauris cursus justo ut blandit scelerisque. Proin vestibulum fringilla turpis sit amet congue. Vestibulum non auctor ligula.
+
+Nullam dictum viverra vehicula[+a]. Curabitur dolor turpis, mollis ut arcu sit amet, feugiat dapibus ligula[+f]. Curabitur erat elit, blandit nec mattis vitae, malesuada eget orci. Morbi pellentesque diam at risus eleifend, eget varius justo vehicula. Vestibulum mattis, odio et faucibus volutpat, ipsum ligula vulputate mauris, ut convallis urna augue ut magna. Curabitur et lorem tortor. Nullam efficitur dui nulla, nec interdum magna accumsan sit amet. Morbi vel mattis lacus, in lacinia dolor. In dictum fringilla nibh eu fermentum. Cras fermentum eget mi ac porttitor. Aenean sed velit consequat sapien aliquam hendrerit. Quisque ut erat varius, malesuada lacus ac, feugiat urna. Aliquam mauris eros, pulvinar vitae vestibulum ut, tempor sit amet turpis.
 
 Nam vulputate congue velit, nec faucibus leo porta vel. Phasellus ut laoreet nunc. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras a vestibulum nulla. Aenean vitae faucibus odio. Phasellus laoreet, diam et eleifend aliquam, lorem ligula porttitor massa, ut interdum nisl lectus id elit. Vestibulum sit amet nibh maximus libero viverra egestas a ac arcu.
 
@@ -56,9 +58,9 @@ Praesent sollicitudin, dui eu faucibus faucibus, velit ex elementum purus, vel v
 
 [+b]: This is the content for the second note. It appears inline after the second ref.
 
-[+c]: This is the content for the third note. It appears inline after the third ref.
-
 [+d]: DDD
+
+[+note]: This is the content for the third note. It appears inline after the third ref.
 
 [+e]: This is the content for the fifth note. It appears inline after the fifth ref.
 
@@ -78,6 +80,10 @@ Praesent sollicitudin, dui eu faucibus faucibus, velit ex elementum purus, vel v
 		min-height: 100vh;
 	}
 
+    :global(.hidden) {
+        display: none;
+    }
+
 	:global(.carta-font-code, code) {
 		font-family: 'Fira Code', monospace;
 		font-variant-ligatures: normal;
@@ -89,40 +95,8 @@ Praesent sollicitudin, dui eu faucibus faucibus, velit ex elementum purus, vel v
 	}
 
 	main {
-		max-width: 1536px;
+		max-width: 2000px;
 		margin: 0 auto 0 auto;
-		padding: 2rem 0 2rem 0;
-	}
-
-	/* Responsive main */
-
-	@media screen and (max-width: 640px) {
-		main {
-			width: 95%;
-		}
-	}
-
-	@media screen and (min-width: 640px) and (max-width: 767px) {
-		main {
-			width: 640px;
-		}
-	}
-
-	@media screen and (min-width: 767px) and (max-width: 1023px) {
-		main {
-			width: 768px;
-		}
-	}
-
-	@media screen and (min-width: 1023px) and (max-width: 1279px) {
-		main {
-			width: 1024px;
-		}
-	}
-
-	@media screen and (min-width: 1279px) and (max-width: 1535px) {
-		main {
-			width: 1280px;
-		}
+		padding: 2rem 1rem;
 	}
 </style>

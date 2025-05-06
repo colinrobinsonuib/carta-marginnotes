@@ -5,21 +5,19 @@ import { remarkMarginnotesPlugin, marginnoteHandlers } from 'remark-marginnotes'
 import MarginNoteIcon from './icons/MarginNoteIcon.svelte';
 import FootNoteIcon from './icons/FootNoteIcon.svelte';
 
-export const marginnotes = (): CartaPlugin => {
+export const marginnotes = ({useShapes=false, useNumbers=false }): CartaPlugin => {
 	return {
 		transformers: [
 			{
 				execution: 'sync',
 				type: 'remark',
 				transform: ({ processor }) => {
-					processor.use(remarkMarginnotesPlugin)
-				},
-			},
-			{
-				execution: 'sync',
-				type: 'rehype',
-				transform: ({ processor }) => {
-					processor.use(remarkRehype, { handlers: marginnoteHandlers })
+					processor.use(remarkMarginnotesPlugin).use(remarkRehype, {
+						handlers: marginnoteHandlers({
+							useShapes: useShapes,
+							useNumbers: useNumbers,
+						}),
+					});
 				},
 			},
 		],
