@@ -9,7 +9,7 @@ export const marginnotes = ({useShapes=false, useNumbers=false }): CartaPlugin =
 	return {
 		transformers: [
 			{
-				execution: 'sync',
+				execution: 'async',
 				type: 'remark',
 				transform: ({ processor }) => {
 					processor.use(remarkMarginnotesPlugin).use(remarkRehype, {
